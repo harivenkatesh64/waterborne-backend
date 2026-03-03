@@ -20,6 +20,12 @@ class ChangePasswordModel(BaseModel):
 @router.post("/register")
 def register(user: UserRegister):
 
+    if len(user.password.encode("utf-8")) > 72:
+        raise HTTPException(
+            status_code=400,
+            detail="Password must be 72 characters or fewer"
+        )
+
     existing_user = users_collection.find_one({"email": user.email})
     if existing_user:
         raise HTTPException(status_code=400, detail="User already exists")
@@ -35,10 +41,7 @@ def register(user: UserRegister):
 
     users_collection.insert_one(user_doc)
 
-    logger.info(f"New user registered: {user.email}")
-
     return {"message": "User registered successfully"}
-
 
 # 🔹 Login User
 @router.post("/login")
