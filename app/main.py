@@ -6,7 +6,7 @@ app = FastAPI(title="Smart Waterborne Disease Early Warning System")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # for development
+    allow_origins=["https://waterborne-frontend.onrender.com","http://127.0.0.1:5500"],  # for development
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
