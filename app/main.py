@@ -1,8 +1,13 @@
+import sys
 from fastapi import FastAPI
 from app.routes import auth_routes, report_routes, admin_routes
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="Smart Waterborne Disease Early Warning System")
+
+@app.get("/python-version")
+def python_version():
+    return {"python_version": sys.version}
 
 app.add_middleware(
     CORSMiddleware,
