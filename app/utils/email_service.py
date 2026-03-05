@@ -26,6 +26,8 @@ def send_email(to_email, subject, message):
         server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=30)
         server.starttls()
         server.login(SMTP_EMAIL, SMTP_PASSWORD)
+        server.sendmail(SMTP_EMAIL, to_email, msg.as_string())
+        server.quit()
 
         # send email to all recipients
         server.sendmail(SMTP_EMAIL, to_email, msg.as_string())
