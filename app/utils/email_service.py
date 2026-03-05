@@ -23,7 +23,7 @@ def send_email(to_email, subject, message):
     msg["To"] = ", ".join(to_email)
 
     try:
-        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=30)
         server.starttls()
         server.login(SMTP_EMAIL, SMTP_PASSWORD)
 
