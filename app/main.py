@@ -16,4 +16,3 @@ app.include_router(report_routes.router, prefix="/report")
 app.include_router(admin_routes.router, prefix="/admin")  
 
 
-

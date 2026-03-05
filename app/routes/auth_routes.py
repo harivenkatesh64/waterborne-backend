@@ -5,6 +5,7 @@ from app.schemas.user_schema import UserRegister, UserLogin
 from app.utils.dependencies import get_current_user
 from app.utils.password_handler import hash_password, verify_password
 from app.utils.jwt_handler import create_token
+from app.utils.email_service import send_email
 from app.models.user_model import UserModel
 from app.logger import logger
 
@@ -41,7 +42,32 @@ def register(user: UserRegister):
 
     users_collection.insert_one(user_doc)
 
+    # 🔹 Send Registration Email
+    try:
+        send_email(
+            user.email,
+            "Registration Successful - Waterborne Disease Surveillance System",
+            f"""
+Hello {user.name},
+
+Your account has been successfully registered in the
+Smart Waterborne Disease Surveillance System.
+
+Role: {user.role}
+
+You can now log in and start using the system.
+
+Thank you for contributing to disease monitoring and public health.
+
+Regards,
+Waterborne Disease Surveillance System
+"""
+        )
+    except Exception as e:
+        logger.error(f"Email sending failed: {str(e)}")
+
     return {"message": "User registered successfully"}
+
 
 # 🔹 Login User
 @router.post("/login")
@@ -64,7 +90,7 @@ def login(user: UserLogin):
     return {"access_token": token}
 
 
-# 🔹 Get Current Logged-In User (For Frontend Redirect)
+# 🔹 Get Current Logged-In User
 @router.get("/me")
 def get_current_user_details(current_user=Depends(get_current_user)):
     return current_user
@@ -81,14 +107,14 @@ def change_password(
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    # ✅ Verify old password
+    # Verify old password
     if not verify_password(data.old_password, db_user["password"]):
         raise HTTPException(status_code=400, detail="Incorrect old password")
 
-    # ✅ Hash new password
+    # Hash new password
     new_hashed_password = hash_password(data.new_password)
 
-    # ✅ Update password in database
+    # Update password
     users_collection.update_one(
         {"email": current_user["email"]},
         {"$set": {"password": new_hashed_password}}

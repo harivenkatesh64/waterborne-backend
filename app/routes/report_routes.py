@@ -3,6 +3,8 @@ from app.database import reports_collection, alerts_collection
 from datetime import datetime
 from app.schemas.report_schema import HealthReport
 from app.utils.dependencies import get_current_user
+from app.utils.email_service import send_email
+from app.database import users_collection
 from app.models.report_model import ReportModel
 from app.logger import logger
 
@@ -10,7 +12,6 @@ router = APIRouter()
 
 # 🔥 Set Threshold (Change to 3 for testing)
 THRESHOLD = 3
-
 
 @router.post("/submit")
 def submit_report(
@@ -36,7 +37,7 @@ def submit_report(
 
     village = report_doc["village"]
 
-    # 🧠 Identify which disease was submitted (1 per submission)
+    # 🧠 Identify which disease was submitted
     selected_disease = None
 
     if report_doc["diarrhea_cases"] == 1:
@@ -51,7 +52,6 @@ def submit_report(
     outbreak_detected = False
     case_count = 0
 
-    # ✅ Properly indented block
     if selected_disease:
 
         # 🔢 Count total cases for same village + same disease
@@ -65,10 +65,11 @@ def submit_report(
         )
 
         if case_count >= THRESHOLD:
+            print("OUTBREAK DETECTED")
 
             outbreak_detected = True
 
-            # 🔥 Determine Severity Dynamically
+            # 🔥 Determine Severity
             if case_count >= 5:
                 severity = "Critical"
             elif case_count >= 4:
@@ -86,7 +87,7 @@ def submit_report(
             })
 
             if existing_alert:
-                # ✅ UPDATE existing alert
+
                 alerts_collection.update_one(
                     {"_id": existing_alert["_id"]},
                     {
@@ -103,7 +104,7 @@ def submit_report(
                 )
 
             else:
-                # ✅ CREATE new alert
+
                 alert_doc = {
                     "village": village,
                     "disease": selected_disease,
@@ -121,6 +122,39 @@ def submit_report(
                 logger.warning(
                     f"New Outbreak Alert | Village: {village} | Severity: {severity}"
                 )
+
+            # 🚨 SEND ALERT EMAILS USING BCC (ONE EMAIL)
+
+            users = users_collection.find({
+                "role": {"$in": ["admin", "volunteer"]}
+            })
+
+            email_list = [u["email"] for u in users]
+
+            try:
+                send_email(
+                    email_list,
+                    "⚠ Waterborne Disease Outbreak Alert",
+                    f"""
+Hello,
+
+⚠ A potential outbreak has been detected.
+
+Village: {village}
+Disease: {selected_disease}
+Total Cases: {case_count}
+Severity Level: {severity}
+
+Please take necessary precautions and coordinate with health authorities.
+
+Smart Waterborne Disease Surveillance System
+"""
+                )
+
+                logger.info("Alert email sent to all admins and volunteers")
+
+            except Exception as e:
+                logger.error(f"Alert email sending failed: {str(e)}")
 
     return {
         "message": "Case recorded successfully",

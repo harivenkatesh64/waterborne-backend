@@ -255,3 +255,44 @@ AttributeError: module 'bcrypt' has no attribute '__about__'
 2026-03-03 11:31:18,632 - INFO - User logged in: vinay@gmail.com
 2026-03-03 11:31:40,471 - INFO - Password changed for user: vinay@gmail.com
 2026-03-03 11:31:52,948 - INFO - User logged in: vinay@gmail.com
+2026-03-04 21:56:14,744 - INFO - User logged in: harivenkatesh141@gmail.com
+2026-03-04 21:59:30,037 - INFO - User logged in: harivenkatesh463@gmail.com
+2026-03-04 23:35:41,468 - INFO - User logged in: harivenkatesh141@gmail.com
+2026-03-04 23:42:27,908 - INFO - User logged in: harivenkatesh141@gmail.com
+2026-03-04 23:44:44,361 - INFO - User logged in: harivenkatesh463@gmail.com
+2026-03-05 20:11:16,688 - INFO - User logged in: harivenkatesh141@gmail.com
+2026-03-05 20:13:32,889 - INFO - Village: miyapur | Disease: diarrhea | Total Cases: 1
+2026-03-05 20:13:53,885 - INFO - Village: miyapur | Disease: diarrhea | Total Cases: 2
+2026-03-05 20:14:15,372 - INFO - Village: miyapur | Disease: diarrhea | Total Cases: 3
+2026-03-05 20:14:15,589 - WARNING - New Outbreak Alert | Village: miyapur | Severity: Medium
+2026-03-05 20:14:18,967 - ERROR - Alert email sending failed: 'list' object has no attribute 'encode'
+2026-03-05 20:22:20,423 - INFO - User logged in: harivenkatesh141@gmail.com
+2026-03-05 20:23:07,590 - INFO - Village: miyapur | Disease: diarrhea | Total Cases: 4
+2026-03-05 20:23:07,774 - INFO - Alert UPDATED | Village: miyapur | Severity: High
+2026-03-05 20:23:13,298 - INFO - Alert email sent to all admins and volunteers
+2026-03-05 21:59:48,148 - INFO - User logged in: harivenkatesh141@gmail.com
+2026-03-05 22:00:13,708 - INFO - Village: ha | Disease: diarrhea | Total Cases: 1
+2026-03-05 22:00:28,560 - INFO - Village: ha | Disease: fever | Total Cases: 1
+2026-03-05 22:00:45,959 - INFO - Village: ha | Disease: diarrhea | Total Cases: 2
+2026-03-05 22:00:55,377 - INFO - Village: ha | Disease: diarrhea | Total Cases: 3
+2026-03-05 22:00:55,550 - WARNING - New Outbreak Alert | Village: ha | Severity: Medium
+2026-03-05 22:08:21,133 - INFO - User logged in: harivenkatesh141@gmail.com
+2026-03-05 22:08:58,413 - INFO - Village: b | Disease: diarrhea | Total Cases: 1
+2026-03-05 22:09:02,625 - INFO - Village: b | Disease: diarrhea | Total Cases: 2
+2026-03-05 22:09:06,708 - INFO - Village: b | Disease: diarrhea | Total Cases: 3
+2026-03-05 22:09:07,012 - WARNING - New Outbreak Alert | Village: b | Severity: Medium
+2026-03-05 22:14:30,114 - INFO - User logged in: harivenkatesh141@gmail.com
+2026-03-05 22:15:03,576 - INFO - Village: b | Disease: diarrhea | Total Cases: 4
+2026-03-05 22:15:03,625 - INFO - Alert UPDATED | Village: b | Severity: High
+2026-03-05 22:16:06,660 - INFO - Village: b | Disease: diarrhea | Total Cases: 5
+2026-03-05 22:16:06,861 - INFO - Alert UPDATED | Village: b | Severity: Critical
+2026-03-05 22:16:11,983 - INFO - Alert email sent to all admins and volunteers
+2026-03-05 22:19:01,973 - INFO - Village: ha | Disease: diarrhea | Total Cases: 6
+2026-03-05 22:19:02,278 - INFO - Alert UPDATED | Village: ha | Severity: Critical
+2026-03-05 22:19:07,195 - INFO - Alert email sent to all admins and volunteers
+2026-03-05 22:19:21,728 - INFO - Village: ha | Disease: diarrhea | Total Cases: 7
+2026-03-05 22:19:22,055 - INFO - Alert UPDATED | Village: ha | Severity: Critical
+2026-03-05 22:19:27,369 - INFO - Alert email sent to all admins and volunteers
+2026-03-05 22:30:40,351 - INFO - Village: ha | Disease: diarrhea | Total Cases: 9
+2026-03-05 22:30:40,547 - INFO - Alert UPDATED | Village: ha | Severity: Critical
+2026-03-05 22:30:45,361 - INFO - Alert email sent to all admins and volunteers
