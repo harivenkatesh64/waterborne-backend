@@ -6,12 +6,7 @@ load_dotenv()
 
 RESEND_API_KEY = os.getenv("RESEND_API_KEY")
 
-
 def send_email(to_email, subject, message):
-
-    # allow single email or list of emails
-    if isinstance(to_email, str):
-        to_email = [to_email]
 
     try:
         response = requests.post(
@@ -22,13 +17,14 @@ def send_email(to_email, subject, message):
             },
             json={
                 "from": "onboarding@resend.dev",
-                "to": to_email,
+                "to": ["harivenkatesh463@gmail.com"],   # always send to your email
                 "subject": subject,
                 "html": message
             }
         )
 
-        print("Email sent:", response.status_code)
+        print("Email status:", response.status_code)
+        print("Response:", response.text)
 
     except Exception as e:
         print("Email sending failed:", str(e))
