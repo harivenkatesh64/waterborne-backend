@@ -26,7 +26,7 @@ def send_email(to_email, subject, message):
             },
             json={
                 "from": "onboarding@resend.dev",
-                "to": ["YOUR_EMAIL@gmail.com"],
+                "to": ["harivenkatesh463@gmail.com"],
                 "subject": subject,
                 "html": message
             }
