@@ -1,40 +1,34 @@
-import smtplib
 import os
-from email.mime.text import MIMEText
+import requests
 from dotenv import load_dotenv
 
 load_dotenv()
 
-SMTP_SERVER = os.getenv("SMTP_SERVER")
-SMTP_PORT = int(os.getenv("SMTP_PORT"))
-SMTP_EMAIL = os.getenv("SMTP_EMAIL")
-SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
+RESEND_API_KEY = os.getenv("RESEND_API_KEY")
 
 
 def send_email(to_email, subject, message):
 
-    # If a single email is passed, convert it to a list
+    # allow single email or list of emails
     if isinstance(to_email, str):
         to_email = [to_email]
 
-    msg = MIMEText(message)
-    msg["Subject"] = subject
-    msg["From"] = SMTP_EMAIL
-    msg["To"] = ", ".join(to_email)
-
     try:
-        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=30)
-        server.starttls()
-        server.login(SMTP_EMAIL, SMTP_PASSWORD)
-        server.sendmail(SMTP_EMAIL, to_email, msg.as_string())
-        server.quit()
+        response = requests.post(
+            "https://api.resend.com/emails",
+            headers={
+                "Authorization": f"Bearer {RESEND_API_KEY}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "from": "onboarding@resend.dev",
+                "to": to_email,
+                "subject": subject,
+                "html": message
+            }
+        )
 
-        # send email to all recipients
-        server.sendmail(SMTP_EMAIL, to_email, msg.as_string())
-
-        server.quit()
-
-        print("Email sent successfully")
+        print("Email sent:", response.status_code)
 
     except Exception as e:
         print("Email sending failed:", str(e))
