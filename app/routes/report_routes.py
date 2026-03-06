@@ -10,8 +10,9 @@ from app.logger import logger
 
 router = APIRouter()
 
-# 🔥 Set Threshold (Change to 3 for testing)
+# 🔥 Outbreak threshold
 THRESHOLD = 3
+
 
 @router.post("/submit")
 def submit_report(
@@ -29,15 +30,14 @@ def submit_report(
     # 📄 Create report document
     report_doc = ReportModel.create_report_document(report.dict())
 
-    # Attach submitted_by from token
     report_doc["submitted_by"] = current_user["email"]
 
-    # 💾 Save to MongoDB
+    # 💾 Save report
     reports_collection.insert_one(report_doc)
 
     village = report_doc["village"]
 
-    # 🧠 Identify which disease was submitted
+    # 🧠 Detect disease type
     selected_disease = None
 
     if report_doc["diarrhea_cases"] == 1:
@@ -54,7 +54,7 @@ def submit_report(
 
     if selected_disease:
 
-        # 🔢 Count total cases for same village + same disease
+        # 🔢 Count total cases
         case_count = reports_collection.count_documents({
             "village": village,
             f"{selected_disease}_cases": 1
@@ -64,12 +64,22 @@ def submit_report(
             f"Village: {village} | Disease: {selected_disease} | Total Cases: {case_count}"
         )
 
+        # 🔍 Check existing alert
+        existing_alert = alerts_collection.find_one({
+            "village": village,
+            "disease": selected_disease,
+            "status": "active"
+        })
+
+        # -----------------------------------------
+        # OUTBREAK DETECTED
+        # -----------------------------------------
+
         if case_count >= THRESHOLD:
-            print("OUTBREAK DETECTED")
 
             outbreak_detected = True
 
-            # 🔥 Determine Severity
+            # 🔥 Determine severity
             if case_count >= 5:
                 severity = "Critical"
             elif case_count >= 4:
@@ -79,12 +89,9 @@ def submit_report(
             else:
                 severity = "Warning"
 
-            # 🔍 Check if active alert exists
-            existing_alert = alerts_collection.find_one({
-                "village": village,
-                "disease": selected_disease,
-                "status": "active"
-            })
+            # -----------------------------------------
+            # ALERT ALREADY EXISTS → UPDATE ONLY
+            # -----------------------------------------
 
             if existing_alert:
 
@@ -103,6 +110,10 @@ def submit_report(
                     f"Alert UPDATED | Village: {village} | Severity: {severity}"
                 )
 
+            # -----------------------------------------
+            # NEW OUTBREAK → CREATE ALERT + EMAIL
+            # -----------------------------------------
+
             else:
 
                 alert_doc = {
@@ -120,22 +131,23 @@ def submit_report(
                 alerts_collection.insert_one(alert_doc)
 
                 logger.warning(
-                    f"New Outbreak Alert | Village: {village} | Severity: {severity}"
+                    f"NEW OUTBREAK ALERT | Village: {village} | Severity: {severity}"
                 )
 
-            # 🚨 SEND ALERT EMAILS USING BCC (ONE EMAIL)
+                # 🚨 Send email only when outbreak starts
 
-            users = users_collection.find({
-                "role": {"$in": ["admin", "volunteer"]}
-            })
+                users = users_collection.find({
+                    "role": {"$in": ["admin", "volunteer"]}
+                })
 
-            email_list = [u["email"] for u in users]
+                email_list = [u["email"] for u in users]
 
-            try:
-                send_email(
-                    email_list,
-                    "⚠ Waterborne Disease Outbreak Alert",
-                    f"""
+                try:
+
+                    send_email(
+                        email_list,
+                        "⚠ Waterborne Disease Outbreak Alert",
+                        f"""
 Hello,
 
 ⚠ A potential outbreak has been detected.
@@ -149,12 +161,62 @@ Please take necessary precautions and coordinate with health authorities.
 
 Smart Waterborne Disease Surveillance System
 """
+                    )
+
+                    logger.info("Outbreak email sent")
+
+                except Exception as e:
+
+                    logger.error(f"Alert email sending failed: {str(e)}")
+
+        # -----------------------------------------
+        # OUTBREAK RESOLVED
+        # -----------------------------------------
+
+        elif existing_alert:
+
+            alerts_collection.update_one(
+                {"_id": existing_alert["_id"]},
+                {
+                    "$set": {
+                        "status": "resolved",
+                        "resolved_at": datetime.utcnow()
+                    }
+                }
+            )
+
+            logger.info(f"Outbreak RESOLVED | Village: {village}")
+
+            users = users_collection.find({
+                "role": {"$in": ["admin", "volunteer"]}
+            })
+
+            email_list = [u["email"] for u in users]
+
+            try:
+
+                send_email(
+                    email_list,
+                    "✅ Outbreak Resolved",
+                    f"""
+Hello,
+
+✅ The outbreak situation has been resolved.
+
+Village: {village}
+Disease: {selected_disease}
+
+Health authorities have controlled the situation.
+
+Smart Waterborne Disease Surveillance System
+"""
                 )
 
-                logger.info("Alert email sent to all admins and volunteers")
+                logger.info("Resolved email sent")
 
             except Exception as e:
-                logger.error(f"Alert email sending failed: {str(e)}")
+
+                logger.error(f"Resolved email sending failed: {str(e)}")
 
     return {
         "message": "Case recorded successfully",
